@@ -5,12 +5,32 @@
 <h1 align="center">mdo</h1>
 <p align="center"><strong>Markdown Document Office</strong> — turn Markdown into branded PDFs from the terminal</p>
 <p align="center">
-  <code>pandoc</code> + <code>typst</code> under the hood · YAML front matter in, polished PDF out
+  <code>pandoc</code> + <code>typst</code> under the hood · Markdown in, polished documents and presentations out
 </p>
 
 ---
 
-A CLI tool that converts Markdown files into branded PDFs using `pandoc` and `typst`. Documents only need a YAML front matter block with a title and subtitle — branding, logo, and styling are applied automatically.
+## The problem that MarkdownOffice was designed to solve
+
+The following is true about almost any company or team:
+
+- They accrue, build and work with knowledge in formats that should be optimized for editing and collaboration
+- They at some point want to produce artifacts based on the above such as presentations and documents to share with others
+
+Historically, tools like the Microsoft or Google suites somewhat solved these, but they muddled the above two; people end up collaborating in a PowerPoint deck, and knowledge work gets mixed with presentation work, often resulting in key knowledge being left in various presentations in various versions, rather than kept centrally and presented at-will.
+Additionally, these formats (pptx, docx etc.) aren't text-based, and are neither friendly to humans, git or LLMs.
+
+MarkdownOffice attempts to address these issues by separating the editing stage from the presentation stage:
+
+- The editing stage consists of collaborating on markdown files in whatever tools you like, making it git and LLM-friendly out of the box to build and edit knowledge.
+- The presentation stage is where MarkdownOffice comes in, taking a simple approach to generating customizable PDFs and presentations from your markdown sources.
+
+To do so, MarkdownOffice uses `pandoc` and `typst` for PDFs, and produces `Astro`-based sites with markdown content for presentations.
+These tools give us access to a number of more advanced features as well, such as the full power of HTML and CSS for visuals and animations.
+
+## What is MarkdownOffice (mdo)?
+
+MDO is a CLI tool that converts Markdown files into branded PDFs using `pandoc` and `typst`. Documents only need a YAML front matter block with a title and subtitle — branding, logo, and styling are applied automatically.
 
 Supports basic PDF generation as well as watch mode, letting you edit Markdown while seeing your changes live in PDF-form.
 
@@ -21,6 +41,7 @@ curl -fsSL https://raw.githubusercontent.com/PineGrove-AI/MarkdownOffice/main/in
 ```
 
 This will:
+
 1. Check for `pandoc` and `typst`, offering to install them if missing
 2. Download the latest `mdo` binary for your platform
 3. Install it to `~/.local/bin`
@@ -67,7 +88,7 @@ mdo --version                         # print version
 ### PDF options
 
 | Flag | Description |
-|---|---|
+| --- | --- |
 | `--watch`, `-w` | Re-render on file changes and open the PDF |
 | `--open` | Open the PDF after rendering |
 | `--output`, `-o` | Output PDF path (default: `<input>.pdf`) |
@@ -98,7 +119,7 @@ Slides need **Node.js (>= 18.17) and npm** in addition to pandoc. On first use, 
 ### Slide options
 
 | Flag | Description |
-|---|---|
+| --- | --- |
 | `--watch`, `-w` | Serve the deck with the Astro dev server, open it, and live-reload on changes |
 | `--open` | Open the presentation (or, with `--pdf`, the PDF) after rendering |
 | `--output`, `-o` | Output HTML path (default: `<input>.html`) |
@@ -122,10 +143,10 @@ The deck loads its fonts from Google Fonts, so print while online to get the rig
 Slides are split at these boundaries:
 
 - **`# Heading 1`** — starts a new section slide
-- **`## Heading 2`** — starts a sub-slide (the parent `# ` heading is shown as the eyebrow above the title)
+- **`## Heading 2`** — starts a sub-slide (the parent `#` heading is shown as the eyebrow above the title)
 - **`---`** (horizontal rule) — continuation slide within the current slide
 
-If a document has no `# ` headings (say, a README whose title is raw HTML), its highest heading level takes the place of `# `, and the next level down makes sub-slides.
+If a document has no `#` headings (say, a README whose title is raw HTML), its highest heading level takes the place of `#`, and the next level down makes sub-slides.
 
 Within a slide:
 
@@ -141,14 +162,14 @@ Within a slide:
 - Raw HTML in a ```` ```{=html} ```` block is passed through untouched, for diagrams, SVGs or custom layouts. The Markdown content styles don't apply inside it, but the design's classes (`.reveal`, `.stack`, `.body`, `.eyebrow`, ...) and theme variables (`var(--brand)`, `var(--ink-2)`, ...) do. Local images in `<img src>` and SVG `<image href>` are embedded like Markdown images. Longer HTML can live in its own file: `!include diagram.html` inserts it as a raw HTML block.
 - `> blockquotes` render as call-outs; code blocks, tables and images are styled to match.
 
-Content before the first `# ` heading is ignored — the title slide is generated automatically from the front matter and branding config, and left out when the document has no `doc-title` or `doc-subtitle`.
+Content before the first `#` heading is ignored — the title slide is generated automatically from the front matter and branding config, and left out when the document has no `doc-title` or `doc-subtitle`.
 
 ### Slide attributes
 
 Pandoc attributes on a `#`/`##` heading control that slide. `##` sub-slides and `---` continuations inherit `.dark`/`.cream` from their parent.
 
 | Attribute | Effect |
-|---|---|
+| --- | --- |
 | `{.dark}` | Dark background |
 | `{.cream}` | Cream background (default is off-white paper) |
 | `{.cover}` | Title-slide layout — useful for a closing slide |
@@ -156,7 +177,7 @@ Pandoc attributes on a `#`/`##` heading control that slide. `##` sub-slides and 
 | `{.no-rule}` | No divider between the title and the content |
 | `{.no-subtitle}` | Keep the first paragraph as regular content |
 | `{eyebrow="..."}` | Small label above the title |
-| `{label="..."}` | Text in the top-right corner (default: the `# ` section title) |
+| `{label="..."}` | Text in the top-right corner (default: the `#` section title) |
 | `{left="..." right="..."}` | Bottom corner text on `.cover` slides |
 
 ```markdown
@@ -201,7 +222,7 @@ About anything we covered today.
 The title slide takes these front matter fields in addition to `doc-title` and `doc-subtitle`:
 
 | Field | Description |
-|---|---|
+| --- | --- |
 | `cover-label` | Top-right text on the title slide |
 | `cover-left` / `cover-right` | Bottom corner text on the title slide |
 | `incremental` | `true` to reveal every list item by item |
@@ -209,7 +230,7 @@ The title slide takes these front matter fields in addition to `doc-title` and `
 ### Slide navigation
 
 | Input | Action |
-|---|---|
+| --- | --- |
 | Right / Down / Space / Click | Reveal the next step, then go to the next slide |
 | Left / Up | Hide the last revealed step, then go to the previous slide |
 | Scroll | Move between slides |
@@ -245,7 +266,7 @@ By default slides use the brand colour from `mdo-config.json` for accents, toget
 ```
 
 | Key | Used for | Default |
-|---|---|---|
+| --- | --- | --- |
 | `background` | Default slides | `#FBFAF7` |
 | `background_cream` | `{.cream}` slides, code blocks | `#F6F2ED` |
 | `background_dark` | `{.dark}` slides | `#2B413A` |
@@ -302,7 +323,7 @@ Then edit `mdo-config.json` and replace `logo.svg` with your own `logo.png` or `
 ```
 
 | Field | Required | Description |
-|---|---|---|
+| --- | --- | --- |
 | `company_name_prefix` | Yes | First part of the company name |
 | `company_name_highlight` | Yes | Second part, rendered in `brand_color` |
 | `brand_color` | Yes | Hex colour for branding accents |
@@ -328,7 +349,7 @@ toc: true
 ```
 
 | Field | Required | Description |
-|---|---|---|
+| --- | --- | --- |
 | `doc-title` | Yes | Document title on the frontpage |
 | `doc-subtitle` | No | Subtitle below the title |
 | `toc` | No | Set to `true` to include a table of contents |
@@ -357,7 +378,7 @@ Paths are relative to the including file. Includes are expanded recursively (up 
 `mdo` ships with default templates for the frontpage layout and typst styling. These can be overridden per-project by placing files with the same name in the document root:
 
 | Template | Purpose |
-|---|---|
+| --- | --- |
 | `frontpage.typ` | Frontpage layout with placeholder tokens |
 | `typst-header.typ` | Typst `#show` and `#set` rules for headings, lists, tables |
 
@@ -368,7 +389,7 @@ Paths are relative to the including file. Includes are expanded recursively (up 
 Custom `frontpage.typ` templates can use these tokens, which are substituted at build time:
 
 | Placeholder | Source |
-|---|---|
+| --- | --- |
 | `%%COMPANY_PREFIX%%` | `mdo-config.json` |
 | `%%COMPANY_HIGHLIGHT%%` | `mdo-config.json` |
 | `%%BRAND_COLOR%%` | `mdo-config.json` |
