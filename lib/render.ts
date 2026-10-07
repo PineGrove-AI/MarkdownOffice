@@ -1,5 +1,6 @@
 import { dirname, join, basename, resolve } from "jsr:@std/path";
-import { loadConfig } from "./config.ts";
+import { findLogo, loadConfig, showConfig } from "./config.ts";
+import * as ui from "./ui.ts";
 import { extractFrontmatter } from "./frontmatter.ts";
 import { buildFrontpage } from "./frontpage.ts";
 import { expandIncludes } from "./includes.ts";
@@ -51,8 +52,9 @@ export async function renderPdf(options: RenderOptions): Promise<RenderResult> {
   const outputPath = options.output ?? defaultOutput;
 
   // ── Load branding config ────────────────────────────────────────────
-  const { config, source: configSource } = await loadConfig(rootDir);
-  console.log(`Using config: ${configSource}`);
+  const loaded = await loadConfig(rootDir);
+  const { config } = loaded;
+  await showConfig(loaded, await findLogo(rootDir));
 
   // ── Set up temp dir ───────────────────────────────────────────────
   const tmpDir = await Deno.makeTempDir();
@@ -115,14 +117,16 @@ export async function renderPdf(options: RenderOptions): Promise<RenderResult> {
 
     const cmd = new Deno.Command("pandoc", {
       args: pandocArgs,
-      stdout: "inherit",
-      stderr: "inherit",
+      stdout: "piped",
+      stderr: "piped",
     });
 
-    const result = await cmd.output();
+    const result = await ui.step("Typesetting with pandoc + typst", () => cmd.output());
+    const log = new TextDecoder().decode(result.stderr);
     if (!result.success) {
-      throw new Error(`pandoc exited with code ${result.code}`);
+      throw new Error(`pandoc exited with code ${result.code}\n${log.trim()}`);
     }
+    if (log.trim()) ui.toolOutput(log);
 
     return {
       outputPath,

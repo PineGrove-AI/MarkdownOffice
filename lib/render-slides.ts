@@ -1,7 +1,8 @@
 // deno-lint-ignore-file no-explicit-any
 import { basename, dirname, extname, isAbsolute, join, resolve } from "jsr:@std/path";
 import { encodeBase64 } from "jsr:@std/encoding/base64";
-import { type BrandConfig, globalConfigDir, loadConfig, SLIDES_THEME_KEYS } from "./config.ts";
+import { type BrandConfig, findLogo, loadConfig, showConfig, SLIDES_THEME_KEYS } from "./config.ts";
+import * as ui from "./ui.ts";
 import { type DocMeta, extractFrontmatter } from "./frontmatter.ts";
 import { expandIncludes } from "./includes.ts";
 import { FONT_KEYS, resolveFonts, type SlideFonts } from "./fonts.ts";
@@ -276,7 +277,7 @@ async function inlineImages(html: string, searchDirs: string[]): Promise<string>
       }
     }
     if (!replacements.has(src)) {
-      console.warn(`Warning: image not found: ${src}`);
+      ui.warn(`Image not found: ${src}`);
     }
   }
 
@@ -284,25 +285,6 @@ async function inlineImages(html: string, searchDirs: string[]): Promise<string>
     const uri = replacements.get(src);
     return uri ? pre + uri + post : m;
   });
-}
-
-// ── Logo ────────────────────────────────────────────────────────────────
-
-const LOGO_NAMES = ["logo.png", "logo.svg"];
-
-async function findLogo(rootDir: string): Promise<string | null> {
-  for (const dir of [rootDir, globalConfigDir()]) {
-    for (const name of LOGO_NAMES) {
-      const path = join(dir, name);
-      try {
-        await Deno.stat(path);
-        return path;
-      } catch {
-        // try next
-      }
-    }
-  }
-  return null;
 }
 
 /** Width / height of a PNG or SVG, used to size the CSS background logo. */
@@ -759,8 +741,9 @@ export async function prepareSlidesProject(
   const outputPath = resolve(options.output ?? defaultOutput);
 
   // ── Load branding config ────────────────────────────────────────────
-  const { config, source: configSource } = await loadConfig(rootDir);
-  console.log(`Using config: ${configSource}`);
+  const loaded = await loadConfig(rootDir);
+  const { config } = loaded;
+  await showConfig(loaded, await findLogo(rootDir));
 
   const watchFiles = [...sources];
 
@@ -864,10 +847,10 @@ export async function renderSlides(options: RenderOptions): Promise<RenderResult
   await ensureAstroRuntime();
   const project = await prepareSlidesProject(options, "build");
 
-  const builtIndex = await astroBuild(project.projectDir);
+  const builtIndex = await ui.step("Building slides with Astro", () => astroBuild(project.projectDir));
   const html = await Deno.readTextFile(builtIndex);
   if (/(?:src|href)="\/_astro\//.test(html)) {
-    console.warn("Warning: built slides reference external assets and may not be self-contained");
+    ui.warn("Built slides reference external assets and may not be self-contained");
   }
   await Deno.mkdir(dirname(project.outputPath), { recursive: true });
   await Deno.writeTextFile(project.outputPath, html);

@@ -2,8 +2,10 @@ import { resolve } from "jsr:@std/path";
 import { pdfCommand } from "./commands/pdf.ts";
 import { slidesCommand } from "./commands/slides.ts";
 import { initCommand } from "./commands/init.ts";
+import { uninstallCommand } from "./commands/uninstall.ts";
 import { updateCommand } from "./lib/update.ts";
 import { version } from "./lib/version.ts";
+import * as ui from "./lib/ui.ts";
 
 function printUsage(): void {
   console.log(`mdo — markdown document office (${version})
@@ -13,6 +15,7 @@ Usage:
   mdo slides <file-or-dir> [options] Convert markdown to an HTML slide deck (Astro)
   mdo init [--global]                Create mdo-config.json and sample files
   mdo update                         Update to the latest version
+  mdo uninstall [options]            Remove mdo, its cache and global config
 
 Options (pdf & slides):
   --watch, -w      Re-render on file changes and open the output
@@ -22,6 +25,10 @@ Options (pdf & slides):
   --root           Document root for mdo-config.json and logo (default: cwd)
   --pdf            (slides) Also print the deck to <output>.pdf, one slide
                    per page (uses Chrome/Chromium; downloads one if needed)
+
+Options (uninstall):
+  --yes, -y        Don't ask for confirmation
+  --keep-config    Keep the global config (branding and logo)
 
 Global options:
   --version, -v    Print version
@@ -39,6 +46,14 @@ Examples:
   mdo slides deck.md --pdf`);
 }
 
+/** Run a command, turning a thrown error into a tidy message and exit code 1. */
+function run(task: Promise<void>): void {
+  task.catch((e) => {
+    ui.error(e instanceof Error ? e.message : String(e));
+    Deno.exit(1);
+  });
+}
+
 function parseArgs(args: string[]): void {
   if (args.length === 0 || args[0] === "--help" || args[0] === "-h") {
     printUsage();
@@ -53,13 +68,27 @@ function parseArgs(args: string[]): void {
   const command = args[0];
 
   if (command === "update") {
-    updateCommand();
+    run(updateCommand());
+    return;
+  }
+
+  if (command === "uninstall") {
+    const rest = args.slice(1);
+    const unknown = rest.find((a) => !["--yes", "-y", "--keep-config"].includes(a));
+    if (unknown) {
+      console.error(`Unknown option: ${unknown}`);
+      Deno.exit(1);
+    }
+    run(uninstallCommand({
+      yes: rest.includes("--yes") || rest.includes("-y"),
+      keepConfig: rest.includes("--keep-config"),
+    }));
     return;
   }
 
   if (command === "init") {
     const global = args.includes("--global");
-    initCommand({ global });
+    run(initCommand({ global }));
     return;
   }
 
@@ -106,14 +135,21 @@ function parseArgs(args: string[]): void {
       Deno.exit(1);
     }
 
+    try {
+      Deno.statSync(input);
+    } catch {
+      ui.error(`Input not found: ${input}`);
+      Deno.exit(1);
+    }
+
     if (command === "pdf") {
-      pdfCommand({ input, output, watch, open, rootDir });
+      run(pdfCommand({ input, output, watch, open, rootDir }));
     } else {
       if (pdf && watch) {
         console.error("Error: --pdf can't be combined with --watch");
         Deno.exit(1);
       }
-      slidesCommand({ input, output, watch, open, pdf, rootDir });
+      run(slidesCommand({ input, output, watch, open, pdf, rootDir }));
     }
   } else {
     console.error(`Unknown command: ${command}`);

@@ -1,4 +1,5 @@
 import { version } from "./version.ts";
+import * as ui from "./ui.ts";
 
 const REPO = "MagerlinC/markdown-office";
 
@@ -26,60 +27,53 @@ function compareSemver(a: string, b: string): number {
 }
 
 export async function updateCommand(): Promise<void> {
-  console.log(`Current version: ${version}`);
+  ui.info(`Current version: ${ui.bold(version)}`);
 
   if (version === "dev") {
-    console.error(
-      "Cannot update a development build. Install from a release binary first.",
-    );
-    Deno.exit(1);
+    throw new Error("Cannot update a development build. Install from a release binary first.");
   }
-
-  console.log("Checking for updates...");
 
   let release: GitHubRelease;
   try {
-    const resp = await fetch(
-      `https://api.github.com/repos/${REPO}/releases/latest`,
-    );
-    if (!resp.ok) {
-      throw new Error(`GitHub API returned ${resp.status}`);
-    }
-    release = await resp.json();
+    release = await ui.step("Checking for updates", async () => {
+      const resp = await fetch(
+        `https://api.github.com/repos/${REPO}/releases/latest`,
+      );
+      if (!resp.ok) {
+        throw new Error(`GitHub API returned ${resp.status}`);
+      }
+      return await resp.json();
+    });
   } catch (err) {
-    console.error(`Failed to check for updates: ${err}`);
-    Deno.exit(1);
+    throw new Error(`Failed to check for updates: ${err}`);
   }
 
   const latest = release.tag_name;
 
   if (compareSemver(latest, version) <= 0) {
-    console.log(`Already up to date (${version}).`);
+    ui.success(`Already up to date (${version}).`);
     return;
   }
 
-  console.log(`New version available: ${latest}`);
+  ui.info(`New version available: ${ui.bold(ui.green(latest))}`);
 
   const platform = detectPlatform();
   const artifactName = `mdo-${platform}`;
   const asset = release.assets.find((a) => a.name === artifactName);
 
   if (!asset) {
-    console.error(
+    throw new Error(
       `No binary found for ${platform} in release ${latest}. Check https://github.com/${REPO}/releases`,
     );
-    Deno.exit(1);
   }
 
-  console.log(`Downloading ${artifactName}...`);
-
-  const resp = await fetch(asset.browser_download_url);
-  if (!resp.ok) {
-    console.error(`Download failed: ${resp.status}`);
-    Deno.exit(1);
-  }
-
-  const binary = new Uint8Array(await resp.arrayBuffer());
+  const binary = await ui.step(`Downloading ${artifactName}`, async () => {
+    const resp = await fetch(asset.browser_download_url);
+    if (!resp.ok) {
+      throw new Error(`Download failed: ${resp.status}`);
+    }
+    return new Uint8Array(await resp.arrayBuffer());
+  });
 
   // Find where the current binary is installed
   const currentBinary = Deno.execPath();
@@ -92,9 +86,8 @@ export async function updateCommand(): Promise<void> {
   } catch (err) {
     // Clean up temp file on failure
     await Deno.remove(tmpPath).catch(() => {});
-    console.error(`Failed to replace binary at ${currentBinary}: ${err}`);
-    Deno.exit(1);
+    throw new Error(`Failed to replace binary at ${currentBinary}: ${err}`);
   }
 
-  console.log(`Updated to ${latest}.`);
+  ui.success(`Updated to ${ui.bold(latest)}.`);
 }

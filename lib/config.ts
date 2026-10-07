@@ -1,4 +1,6 @@
-import { join } from "jsr:@std/path";
+import { dirname, join } from "jsr:@std/path";
+import { placeholderParts, writeSampleConfig } from "./sample-config.ts";
+import * as ui from "./ui.ts";
 
 const CONFIG_FILENAME = "mdo-config.json";
 
@@ -114,10 +116,41 @@ export async function loadConfig(rootDir: string): Promise<ConfigResult> {
     return { config: parseAndValidate(text, path), source: path };
   }
 
-  throw new Error(
-    `No ${CONFIG_FILENAME} found.\n` +
-    `  Checked: ${localPath}\n` +
-    `           ${globalPath}\n` +
-    `  Create one in your project root or at ${globalPath} for a global default.`,
-  );
+  // First run: no config anywhere. Create a placeholder global config (and
+  // logo) so rendering works out of the box, and say loudly that it did.
+  const created = await writeSampleConfig(globalConfigDir());
+  ui.blank();
+  ui.warn(`No ${CONFIG_FILENAME} found, so mdo created a placeholder global config:`);
+  for (const path of created) ui.info(`created ${ui.tidyPath(path)}`);
+  ui.info(`Edit it with your own branding and logo, or run ${ui.bold("mdo init")} for a project-level config.`);
+  return { config: parseAndValidate(await Deno.readTextFile(globalPath), globalPath), source: globalPath };
+}
+
+const LOGO_NAMES = ["logo.png", "logo.svg"];
+
+/** Find the logo: project root first, then the global config dir. */
+export async function findLogo(rootDir: string): Promise<string | null> {
+  for (const dir of [rootDir, globalConfigDir()]) {
+    for (const name of LOGO_NAMES) {
+      try {
+        return await Deno.realPath(join(dir, name));
+      } catch {
+        // try next
+      }
+    }
+  }
+  return null;
+}
+
+/** Print which config and logo a render uses (see ui.configCard). */
+export async function showConfig({ config, source }: ConfigResult, logo: string | null): Promise<void> {
+  ui.configCard({
+    source,
+    scope: dirname(source) === globalConfigDir() ? "global" : "project",
+    companyPrefix: config.company_name_prefix,
+    companyHighlight: config.company_name_highlight,
+    brandColor: config.brand_color,
+    logo,
+    placeholders: await placeholderParts(config, logo),
+  });
 }

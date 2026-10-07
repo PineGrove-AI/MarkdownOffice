@@ -50,7 +50,7 @@ if mdo slides README.md --output "$HTML" --pdf > "$OUT/slides.log" 2>&1; then
   if grep -q 'data:image/svg+xml;base64' "$HTML"; then ok "fixture logo embedded"; else fail "logo not embedded"; fi
   if grep -q '<script type="module">' "$HTML"; then ok "navigation script inlined"; else fail "navigation script missing"; fi
   if grep -qE '(src|href)="/_astro/' "$HTML"; then fail "references external /_astro/ assets"; else ok "self-contained (no /_astro/ assets)"; fi
-  if grep -q 'Warning' "$OUT/slides.log"; then fail "warnings during build:"; grep Warning "$OUT/slides.log"; fi
+  if grep -q '▲' "$OUT/slides.log"; then fail "warnings during build:"; grep '▲' "$OUT/slides.log"; fi
 
   # --pdf: one 16:9 page per slide
   if [ "$(head -c 4 "$SLIDES_PDF" 2>/dev/null)" = "%PDF" ]; then

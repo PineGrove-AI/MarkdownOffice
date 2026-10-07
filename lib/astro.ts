@@ -1,4 +1,5 @@
 import { dirname, join } from "jsr:@std/path";
+import * as ui from "./ui.ts";
 
 // ── Astro runtime ───────────────────────────────────────────────────────
 // Slides are built as an Astro site. Astro (and its node_modules) is
@@ -70,7 +71,7 @@ export async function ensureAstroRuntime(): Promise<void> {
   await requireCommand("node", hint);
   await requireCommand("npm", hint);
 
-  console.log(`Installing Astro into ${runtimeDir} (one-time setup)...`);
+  ui.info(`Installing Astro into ${ui.tidyPath(runtimeDir)} ${ui.dim("(one-time setup)")}`);
   await Deno.mkdir(runtimeDir, { recursive: true });
   await Deno.writeTextFile(pkgPath, pkg);
 

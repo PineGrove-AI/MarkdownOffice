@@ -1,5 +1,6 @@
 import { join, toFileUrl } from "jsr:@std/path";
 import { cacheDir } from "./astro.ts";
+import * as ui from "./ui.ts";
 
 // ── Headless browser for printing slides to PDF ─────────────────────────
 // Slides are HTML, so a PDF needs a browser to render them. mdo uses, in
@@ -82,7 +83,7 @@ async function cachedHeadlessShell(): Promise<string | null> {
 }
 
 async function downloadHeadlessShell(): Promise<string> {
-  console.log(`No Chrome/Chromium found — downloading chrome-headless-shell into ${browsersDir} (one-time setup)...`);
+  ui.info(`No Chrome/Chromium found, downloading chrome-headless-shell into ${ui.tidyPath(browsersDir)} ${ui.dim("(one-time setup)")}`);
   const { success, stdout, stderr } = await new Deno.Command("npx", {
     args: ["--yes", "@puppeteer/browsers", "install", "chrome-headless-shell@stable", "--path", browsersDir],
     stdout: "piped",

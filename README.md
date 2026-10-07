@@ -25,6 +25,20 @@ This will:
 2. Download the latest `mdo` binary for your platform
 3. Install it to `~/.local/bin`
 
+### Uninstalling
+
+```bash
+mdo uninstall
+```
+
+This lists what will be removed and asks for confirmation:
+
+- the `mdo` binary
+- the cache in `~/.cache/mdo/` (Astro runtime, generated slide decks, downloaded browser)
+- the global config in `~/.config/mdo/`, unless you pass `--keep-config`
+
+Pass `--yes` to skip the prompt. Project-level `mdo-config.json` and logo files are left alone, and `pandoc` and `typst` are not removed.
+
 ### From source (for development)
 
 Requires [Deno](https://deno.land):
@@ -46,6 +60,7 @@ mdo pdf <file-or-dir> [options]       # convert markdown to PDF
 mdo slides <file-or-dir> [options]    # convert markdown to an HTML slide deck (Astro)
 mdo init [--global]                   # scaffold config and sample files
 mdo update                            # update to the latest version
+mdo uninstall [--yes] [--keep-config] # remove mdo, its cache and global config
 mdo --version                         # print version
 ```
 
@@ -263,12 +278,16 @@ For anything beyond that, place a `slides.css` in the document root. It is loade
 
 The first match wins. `mdo` prints which config file it's using on each run.
 
-To set up a global default (used when no project-level config exists):
+If neither exists, the first `mdo pdf` or `mdo slides` run creates a **placeholder** global config and `logo.svg` in `~/.config/mdo/` so you get a working document right away. The placeholders are deliberately loud (magenta branding, a "YOUR LOGO" logo and a "Placeholder branding" label) so you know to replace them.
+
+You can also create the same placeholders yourself:
 
 ```bash
-mdo init --global
-# Then add a logo.png or logo.svg to ~/.config/mdo/
+mdo init --global   # ~/.config/mdo/mdo-config.json + logo.svg
+mdo init            # ./mdo-config.json + logo.svg + example.md
 ```
+
+Then edit `mdo-config.json` and replace `logo.svg` with your own `logo.png` or `logo.svg`.
 
 ### mdo-config.json
 
@@ -294,7 +313,7 @@ The company name is rendered as `<prefix><highlight>` with the highlight portion
 
 ### Logo
 
-Place a `logo.png` or `logo.svg` alongside your `mdo-config.json` (project root or global config dir). `logo.png` takes priority over `logo.svg`.
+Place a `logo.png` or `logo.svg` alongside your `mdo-config.json` (project root or global config dir). `logo.png` takes priority over `logo.svg`. A `logo.png` is used even when the placeholder `logo.svg` is still there.
 
 ### YAML front matter
 

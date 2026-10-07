@@ -1,12 +1,7 @@
 import { join } from "jsr:@std/path";
-
-const DEFAULT_CONFIG = `{
-  "company_name_prefix": "Your",
-  "company_name_highlight": "Company",
-  "brand_color": "#2563EB",
-  "confidentiality_label": "Confidential"
-}
-`;
+import { globalConfigDir } from "../lib/config.ts";
+import { writeIfMissing, writeSampleConfig } from "../lib/sample-config.ts";
+import * as ui from "../lib/ui.ts";
 
 const SAMPLE_DOC = `---
 doc-title: "My Document"
@@ -23,43 +18,24 @@ export interface InitArgs {
   global: boolean;
 }
 
-/** Platform-appropriate global config directory. */
-function globalConfigDir(): string {
-  if (Deno.build.os === "windows") {
-    return join(Deno.env.get("APPDATA") ?? join(Deno.env.get("USERPROFILE") ?? "", "AppData", "Roaming"), "mdo");
-  }
-  return join(Deno.env.get("XDG_CONFIG_HOME") ?? join(Deno.env.get("HOME") ?? "", ".config"), "mdo");
-}
-
-async function writeIfMissing(path: string, content: string): Promise<boolean> {
-  try {
-    await Deno.stat(path);
-    console.log(`  exists: ${path}`);
-    return false;
-  } catch {
-    await Deno.writeTextFile(path, content);
-    console.log(`  created: ${path}`);
-    return true;
-  }
-}
-
 export async function initCommand(args: InitArgs): Promise<void> {
   const targetDir = args.global ? globalConfigDir() : Deno.cwd();
 
-  console.log(`Initializing mdo in ${targetDir}`);
-  await Deno.mkdir(targetDir, { recursive: true });
+  ui.blank();
+  ui.info(`Initializing mdo in ${ui.bold(ui.tidyPath(targetDir))}`);
 
-  await writeIfMissing(join(targetDir, "mdo-config.json"), DEFAULT_CONFIG);
+  const created = await writeSampleConfig(targetDir);
 
-  if (!args.global) {
-    await writeIfMissing(join(targetDir, "example.md"), SAMPLE_DOC);
+  if (!args.global && await writeIfMissing(join(targetDir, "example.md"), SAMPLE_DOC)) {
+    created.push(join(targetDir, "example.md"));
   }
 
-  console.log("");
-  if (args.global) {
-    console.log("Global config created. Add a logo.png or logo.svg to the same directory.");
-  } else {
-    console.log("Project initialized. Add a logo.png or logo.svg, then run:");
-    console.log("  mdo pdf example.md");
-  }
+  for (const path of created) ui.success(`created ${ui.tidyPath(path)}`);
+  if (created.length === 0) ui.info("Nothing to do, all files already exist");
+
+  ui.blank();
+  ui.warn(`The config and logo.svg are placeholders (${ui.hex("#FF00FF", "magenta")}, "YOUR LOGO").`);
+  ui.info(`Edit mdo-config.json and replace logo.svg with your own logo.png or logo.svg.`);
+  if (!args.global) ui.info(`Then run ${ui.bold("mdo pdf example.md")}`);
+  ui.blank();
 }

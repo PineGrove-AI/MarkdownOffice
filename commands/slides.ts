@@ -2,6 +2,7 @@ import { resolve } from "jsr:@std/path";
 import { prepareSlidesProject, renderSlides } from "../lib/render-slides.ts";
 import { astroDev, ensureAstroRuntime } from "../lib/astro.ts";
 import { printToPdf } from "../lib/browser.ts";
+import * as ui from "../lib/ui.ts";
 
 /** Open a file with the system default application. */
 async function openFile(path: string): Promise<void> {
@@ -31,17 +32,16 @@ export async function slidesCommand(args: SlidesArgs): Promise<void> {
 
   if (!args.watch) {
     // ── One-shot render ───────────────────────────────────────────────
+    const startedAt = performance.now();
     const result = await renderSlides(renderOpts);
-
-    console.log(
-      `Generated: ${result.outputPath} (from ${result.sourceCount} source file(s))`,
-    );
+    await ui.generated(result.outputPath, startedAt, result.sourceCount);
 
     let openPath = result.outputPath;
     if (args.pdf) {
+      const pdfStartedAt = performance.now();
       const pdfPath = result.outputPath.replace(/\.html?$/i, "") + ".pdf";
-      await printToPdf(result.outputPath, pdfPath);
-      console.log(`Generated: ${pdfPath}`);
+      await ui.step("Printing slides to PDF", () => printToPdf(result.outputPath, pdfPath));
+      await ui.generated(pdfPath, pdfStartedAt);
       openPath = pdfPath;
     }
 
@@ -54,14 +54,14 @@ export async function slidesCommand(args: SlidesArgs): Promise<void> {
   // ── Watch mode: Astro dev server with live reload ───────────────────
   await ensureAstroRuntime();
   const project = await prepareSlidesProject(renderOpts, "dev");
-  console.log(`Astro project: ${project.projectDir}`);
+  ui.info(`Astro project: ${ui.dim(ui.tidyPath(project.projectDir))}`);
 
   const server = astroDev(project.projectDir, project.assetDir, true);
   server.status.then(({ code }) => Deno.exit(code));
 
-  console.log("Watching for changes... (Ctrl+C to stop)");
-
   const watchPaths = [...new Set(project.watchFiles)];
+  ui.watching(watchPaths.length);
+
   const watcher = Deno.watchFs(watchPaths);
 
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -72,11 +72,12 @@ export async function slidesCommand(args: SlidesArgs): Promise<void> {
 
     if (debounceTimer) clearTimeout(debounceTimer);
     debounceTimer = setTimeout(async () => {
-      console.log(`\nChange detected, regenerating slides...`);
+      ui.changed(event.paths);
       try {
         await prepareSlidesProject(renderOpts, "dev");
+        ui.success("Slides updated, the browser reloads by itself");
       } catch (e) {
-        console.error(`Build failed: ${(e as Error).message}`);
+        ui.error(`Build failed: ${(e as Error).message}`);
       }
     }, 300);
   }

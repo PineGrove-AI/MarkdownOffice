@@ -1,5 +1,6 @@
 import { resolve } from "jsr:@std/path";
 import { renderPdf } from "../lib/render.ts";
+import * as ui from "../lib/ui.ts";
 
 /** Open a file with the system default application. */
 async function openFile(path: string): Promise<void> {
@@ -20,15 +21,14 @@ export interface PdfArgs {
 
 export async function pdfCommand(args: PdfArgs): Promise<void> {
   // ── One-shot render ─────────────────────────────────────────────────
+  const startedAt = performance.now();
   const result = await renderPdf({
     input: args.input,
     output: args.output,
     rootDir: args.rootDir,
   });
 
-  console.log(
-    `Generated: ${result.outputPath} (from ${result.sourceCount} source file(s))`,
-  );
+  await ui.generated(result.outputPath, startedAt, result.sourceCount);
 
   if (args.open || args.watch) {
     await openFile(result.outputPath);
@@ -37,9 +37,9 @@ export async function pdfCommand(args: PdfArgs): Promise<void> {
   if (!args.watch) return;
 
   // ── Watch mode ──────────────────────────────────────────────────────
-  console.log("Watching for changes... (Ctrl+C to stop)");
+  const watchPaths = [...new Set(result.watchFiles)];
+  ui.watching(watchPaths.length);
 
-  const watchPaths = [...new Set(result.watchFiles.map((f) => f))];
   const watcher = Deno.watchFs(watchPaths);
 
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -51,18 +51,17 @@ export async function pdfCommand(args: PdfArgs): Promise<void> {
 
     if (debounceTimer) clearTimeout(debounceTimer);
     debounceTimer = setTimeout(async () => {
-      console.log(`\nChange detected, rebuilding...`);
+      ui.changed(event.paths);
+      const startedAt = performance.now();
       try {
         const r = await renderPdf({
           input: args.input,
           output: args.output,
           rootDir: args.rootDir,
         });
-        console.log(
-          `Generated: ${r.outputPath} (from ${r.sourceCount} source file(s))`,
-        );
+        await ui.generated(r.outputPath, startedAt, r.sourceCount);
       } catch (e) {
-        console.error(`Build failed: ${(e as Error).message}`);
+        ui.error(`Build failed: ${(e as Error).message}`);
       }
     }, 300);
   }
