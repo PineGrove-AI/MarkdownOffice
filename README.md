@@ -3,12 +3,13 @@
 </p>
 
 <h1 align="center">mdo</h1>
-<p align="center"><strong>Markdown Document Office</strong> — turn Markdown into branded PDFs from the terminal</p>
-<p align="center">
-  <code>pandoc</code> + <code>typst</code> under the hood · Markdown in, polished documents and presentations out
-</p>
+<p align="center"><strong>Markdown Document Office</strong> — turn Markdown into branded PDFs and Presentations from the terminal</p>
 
 ---
+
+<p align="center">
+  <img src="assets/illustration.svg" alt="The old way: knowledge scattered across presentation formats. The mdo way: markdown as single source of truth, generating PDFs and slides." width="720">
+</p>
 
 ## The problem that MarkdownOffice was designed to solve
 

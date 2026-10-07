@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="320" viewBox="0 0 720 320" fill="none">
+  <defs>
+    <linearGradient id="arrow-grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#94a3b8"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+  </defs>
+
+  <!-- LEFT SIDE: The Old Way (muddled) -->
+  <g transform="translate(40, 28)">
+    <text x="80" y="0" font-family="system-ui, sans-serif" font-size="13" fill="#94a3b8" text-anchor="middle" font-weight="600" letter-spacing="0.05em">THE OLD WAY</text>
+
+    <!-- Messy pile of docs -->
+    <!-- Doc 1 (rotated pptx) -->
+    <g transform="translate(30, 24) rotate(-8, 50, 60)">
+      <rect width="100" height="75" rx="4" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" opacity="0.7"/>
+      <rect x="10" y="12" width="30" height="4" rx="2" fill="#d97706" opacity="0.5"/>
+      <rect x="10" y="22" width="80" height="30" rx="3" fill="#fde68a" stroke="#d97706" stroke-width="1" opacity="0.5"/>
+      <text x="50" y="42" font-family="system-ui, sans-serif" font-size="8" fill="#92400e" text-anchor="middle" opacity="0.6">slides v3</text>
+      <rect x="10" y="58" width="50" height="3" rx="1.5" fill="#d97706" opacity="0.3"/>
+    </g>
+
+    <!-- Doc 2 (rotated docx) -->
+    <g transform="translate(50, 40) rotate(5, 50, 60)">
+      <rect width="100" height="75" rx="4" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5" opacity="0.7"/>
+      <rect x="10" y="12" width="60" height="4" rx="2" fill="#3b82f6" opacity="0.5"/>
+      <rect x="10" y="22" width="80" height="3" rx="1.5" fill="#93c5fd" opacity="0.5"/>
+      <rect x="10" y="30" width="70" height="3" rx="1.5" fill="#93c5fd" opacity="0.4"/>
+      <rect x="10" y="38" width="75" height="3" rx="1.5" fill="#93c5fd" opacity="0.3"/>
+      <text x="50" y="58" font-family="system-ui, sans-serif" font-size="8" fill="#1e40af" text-anchor="middle" opacity="0.6">report FINAL</text>
+      <rect x="10" y="62" width="40" height="3" rx="1.5" fill="#3b82f6" opacity="0.2"/>
+    </g>
+
+    <!-- Doc 3 (another pptx) -->
+    <g transform="translate(20, 55) rotate(-3, 50, 60)">
+      <rect width="100" height="75" rx="4" fill="#fce7f3" stroke="#db2777" stroke-width="1.5" opacity="0.6"/>
+      <rect x="10" y="12" width="40" height="4" rx="2" fill="#db2777" opacity="0.4"/>
+      <rect x="10" y="22" width="80" height="30" rx="3" fill="#fbcfe8" stroke="#db2777" stroke-width="1" opacity="0.4"/>
+      <text x="50" y="42" font-family="system-ui, sans-serif" font-size="8" fill="#9d174d" text-anchor="middle" opacity="0.5">deck FINAL (2)</text>
+      <rect x="10" y="58" width="55" height="3" rx="1.5" fill="#db2777" opacity="0.25"/>
+    </g>
+
+    <!-- Confused arrows between docs -->
+    <path d="M55 70 Q80 50 105 75" stroke="#ef4444" stroke-width="1" stroke-dasharray="3 3" opacity="0.4" fill="none"/>
+    <path d="M90 45 Q65 80 110 100" stroke="#ef4444" stroke-width="1" stroke-dasharray="3 3" opacity="0.4" fill="none"/>
+    <path d="M120 55 Q140 85 100 110" stroke="#ef4444" stroke-width="1" stroke-dasharray="3 3" opacity="0.4" fill="none"/>
+
+    <!-- "Knowledge scattered" label -->
+    <text x="80" y="158" font-family="system-ui, sans-serif" font-size="11" fill="#ef4444" text-anchor="middle" opacity="0.7">Knowledge scattered</text>
+    <text x="80" y="172" font-family="system-ui, sans-serif" font-size="11" fill="#ef4444" text-anchor="middle" opacity="0.7">across formats</text>
+  </g>
+
+  <!-- CENTER: Arrow -->
+  <g transform="translate(240, 100)">
+    <line x1="0" y1="40" x2="220" y2="40" stroke="url(#arrow-grad)" stroke-width="2" stroke-dasharray="6 4"/>
+    <polygon points="220,32 240,40 220,48" fill="#2563EB" opacity="0.7"/>
+    <text x="120" y="24" font-family="system-ui, sans-serif" font-size="12" fill="#64748b" text-anchor="middle" font-weight="500">mdo</text>
+    <text x="120" y="68" font-family="system-ui, sans-serif" font-size="10" fill="#94a3b8" text-anchor="middle">separate editing</text>
+    <text x="120" y="82" font-family="system-ui, sans-serif" font-size="10" fill="#94a3b8" text-anchor="middle">from presentation</text>
+  </g>
+
+  <!-- RIGHT SIDE: The mdo Way -->
+  <g transform="translate(500, 28)">
+    <text x="100" y="0" font-family="system-ui, sans-serif" font-size="13" fill="#2563EB" text-anchor="middle" font-weight="600" letter-spacing="0.05em">THE MDO WAY</text>
+
+    <!-- Single source of truth: Markdown file -->
+    <g transform="translate(40, 16)">
+      <rect x="0" y="0" width="120" height="80" rx="5" fill="white" stroke="#334155" stroke-width="2"/>
+      <!-- Corner fold -->
+      <path d="M100 0 L120 0 L120 20 Z" fill="#e2e8f0" stroke="#334155" stroke-width="1.5" stroke-linejoin="round"/>
+      <!-- MD content -->
+      <text x="12" y="24" font-family="monospace" font-weight="bold" font-size="16" fill="#334155">#</text>
+      <rect x="28" y="14" width="50" height="4" rx="2" fill="#334155" opacity="0.7"/>
+      <rect x="12" y="32" width="90" height="3" rx="1.5" fill="#94a3b8"/>
+      <rect x="12" y="42" width="80" height="3" rx="1.5" fill="#94a3b8"/>
+      <rect x="12" y="52" width="85" height="3" rx="1.5" fill="#94a3b8"/>
+      <rect x="12" y="62" width="60" height="3" rx="1.5" fill="#94a3b8"/>
+      <text x="60" y="96" font-family="system-ui, sans-serif" font-size="10" fill="#334155" text-anchor="middle" font-weight="500">Single source of truth</text>
+    </g>
+
+    <!-- Branch arrows to outputs -->
+    <path d="M100 104 L60 140" stroke="#2563EB" stroke-width="1.5" fill="none"/>
+    <path d="M100 104 L140 140" stroke="#2563EB" stroke-width="1.5" fill="none"/>
+
+    <!-- Output: PDF -->
+    <g transform="translate(10, 144)">
+      <rect width="80" height="56" rx="4" fill="#2563EB" opacity="0.08" stroke="#2563EB" stroke-width="1.5"/>
+      <rect x="10" y="10" width="40" height="3.5" rx="1.5" fill="#2563EB" opacity="0.5"/>
+      <rect x="10" y="18" width="60" height="2.5" rx="1.25" fill="#2563EB" opacity="0.3"/>
+      <rect x="10" y="24" width="55" height="2.5" rx="1.25" fill="#2563EB" opacity="0.3"/>
+      <rect x="10" y="30" width="50" height="2.5" rx="1.25" fill="#2563EB" opacity="0.2"/>
+      <rect x="10" y="38" width="45" height="2.5" rx="1.25" fill="#2563EB" opacity="0.2"/>
+      <text x="40" y="68" font-family="system-ui, sans-serif" font-size="10" fill="#2563EB" text-anchor="middle" font-weight="500">PDF</text>
+    </g>
+
+    <!-- Output: Slides -->
+    <g transform="translate(110, 144)">
+      <rect width="80" height="56" rx="4" fill="#2563EB" opacity="0.08" stroke="#2563EB" stroke-width="1.5"/>
+      <!-- Mini slide content -->
+      <rect x="8" y="8" width="64" height="38" rx="2" fill="white" stroke="#2563EB" stroke-width="1" opacity="0.5"/>
+      <rect x="14" y="16" width="30" height="3" rx="1.5" fill="#2563EB" opacity="0.5"/>
+      <rect x="14" y="24" width="50" height="2" rx="1" fill="#2563EB" opacity="0.25"/>
+      <rect x="14" y="30" width="44" height="2" rx="1" fill="#2563EB" opacity="0.2"/>
+      <circle cx="58" cy="36" r="4" fill="#2563EB" opacity="0.15"/>
+      <text x="40" y="68" font-family="system-ui, sans-serif" font-size="10" fill="#2563EB" text-anchor="middle" font-weight="500">Slides</text>
+    </g>
+  </g>
+
+  <!-- Git/LLM friendly badges at the bottom right -->
+  <g transform="translate(520, 260)">
+    <rect x="0" y="0" width="70" height="22" rx="11" fill="#f0fdf4" stroke="#22c55e" stroke-width="1"/>
+    <text x="35" y="15" font-family="system-ui, sans-serif" font-size="9" fill="#16a34a" text-anchor="middle" font-weight="500">git-friendly</text>
+    <rect x="80" y="0" width="76" height="22" rx="11" fill="#f0fdf4" stroke="#22c55e" stroke-width="1"/>
+    <text x="118" y="15" font-family="system-ui, sans-serif" font-size="9" fill="#16a34a" text-anchor="middle" font-weight="500">LLM-friendly</text>
+  </g>
+</svg>
