@@ -119,22 +119,15 @@ ARTIFACT="mdo-${PLATFORM}"
 echo ""
 echo "Downloading mdo for ${PLATFORM}..."
 
-# Get the download URL for the latest release
-DOWNLOAD_URL="$(
-  curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" \
-    | grep "browser_download_url.*${ARTIFACT}" \
-    | head -1 \
-    | cut -d '"' -f 4
-)" || fail "Could not find a release for ${PLATFORM}. Check https://github.com/${REPO}/releases"
-
-if [ -z "$DOWNLOAD_URL" ]; then
-  fail "No binary found for ${PLATFORM} in the latest release"
-fi
+# GitHub redirects this to the latest release's asset. Unlike the API, it
+# isn't rate limited for anonymous requests.
+DOWNLOAD_URL="https://github.com/${REPO}/releases/latest/download/${ARTIFACT}"
 
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
-curl -fsSL -o "$TMP_DIR/$BINARY_NAME" "$DOWNLOAD_URL"
+curl -fsSL -o "$TMP_DIR/$BINARY_NAME" "$DOWNLOAD_URL" \
+  || fail "Could not download ${ARTIFACT} from the latest release. Check https://github.com/${REPO}/releases"
 chmod +x "$TMP_DIR/$BINARY_NAME"
 
 # ── Install ────────────────────────────────────────────────────────────
