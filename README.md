@@ -17,7 +17,7 @@ Supports basic PDF generation as well as watch mode, letting you edit Markdown w
 ## Installation
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/MagerlinC/markdown-office/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/PineGrove-AI/MarkdownOffice/main/install.sh | bash
 ```
 
 This will:

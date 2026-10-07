@@ -9,7 +9,37 @@ permissions:
   contents: write
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - uses: pandoc/actions/setup@v1
+
+      - uses: typst-community/setup-typst@v4
+
+      # Slides need Node + npm for Astro; --pdf uses the runner's Google Chrome
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Smoke test
+        run: deno task test
+
+      - name: Upload smoke test output
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-test-output
+          path: test/out
+
   build:
+    needs: test
     strategy:
       matrix:
         include:

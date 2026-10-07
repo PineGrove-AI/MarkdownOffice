@@ -6,7 +6,7 @@ import type { BrandConfig } from "./config.ts";
 // the sample config is obviously unbranded.
 
 export const SAMPLE_CONFIG = `{
-  "_readme": "PLACEHOLDER CONFIG created by mdo. Replace the values below with your own branding, and swap logo.svg in this directory for your logo (logo.png or logo.svg). See https://github.com/MagerlinC/markdown-office#configuration",
+  "_readme": "PLACEHOLDER CONFIG created by mdo. Replace the values below with your own branding, and swap logo.svg in this directory for your logo (logo.png or logo.svg). See https://github.com/PineGrove-AI/MarkdownOffice#configuration",
   "company_name_prefix": "Your",
   "company_name_highlight": "Company",
   "brand_color": "#FF00FF",

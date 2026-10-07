@@ -1,7 +1,7 @@
 import { version } from "./version.ts";
 import * as ui from "./ui.ts";
 
-const REPO = "MagerlinC/markdown-office";
+const REPO = "PineGrove-AI/MarkdownOffice";
 
 interface GitHubRelease {
   tag_name: string;

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO="MagerlinC/markdown-office"
+REPO="PineGrove-AI/MarkdownOffice"
 INSTALL_DIR="${HOME}/.local/bin"
 BINARY_NAME="mdo"
 
