@@ -79,8 +79,8 @@
     </g>
 
     <!-- Branch arrows to outputs -->
-    <path d="M100 104 L60 140" stroke="#2563EB" stroke-width="1.5" fill="none"/>
-    <path d="M100 104 L140 140" stroke="#2563EB" stroke-width="1.5" fill="none"/>
+    <path d="M100 120 L60 144" stroke="#2563EB" stroke-width="1.5" fill="none"/>
+    <path d="M100 120 L140 144" stroke="#2563EB" stroke-width="1.5" fill="none"/>
 
     <!-- Output: PDF -->
     <g transform="translate(10, 144)">
