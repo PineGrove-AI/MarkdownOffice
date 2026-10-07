@@ -7,11 +7,11 @@
 
 ---
 
+## The problem that MarkdownOffice was designed to solve
+
 <p align="center">
   <img src="assets/illustration.svg" alt="The old way: knowledge scattered across presentation formats. The mdo way: markdown as single source of truth, generating PDFs and slides." width="720">
 </p>
-
-## The problem that MarkdownOffice was designed to solve
 
 The following is true about almost any company or team:
 
