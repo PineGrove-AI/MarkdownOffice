@@ -7,6 +7,34 @@
 
 ---
 
+<!-- mtoc-start -->
+
+* [The problem that MarkdownOffice was designed to solve](#the-problem-that-markdownoffice-was-designed-to-solve)
+* [What is MarkdownOffice (mdo)?](#what-is-markdownoffice-mdo)
+* [Installation](#installation)
+  * [Uninstalling](#uninstalling)
+  * [From source (for development)](#from-source-for-development)
+* [Usage](#usage)
+  * [PDF options](#pdf-options)
+  * [Examples](#examples)
+* [Slides](#slides)
+  * [Slide options](#slide-options)
+  * [Slides as PDF](#slides-as-pdf)
+  * [Slide structure](#slide-structure)
+  * [Slide attributes](#slide-attributes)
+  * [Slide navigation](#slide-navigation)
+  * [Slide examples](#slide-examples)
+  * [Slide styling](#slide-styling)
+* [Configuration](#configuration)
+  * [mdo-config.json](#mdo-configjson)
+  * [Logo](#logo)
+  * [YAML front matter](#yaml-front-matter)
+  * [Multi-file documents](#multi-file-documents)
+* [Template resolution](#template-resolution)
+  * [Frontpage placeholders](#frontpage-placeholders)
+
+<!-- mtoc-end -->
+
 ## The problem that MarkdownOffice was designed to solve
 
 <p align="center">
@@ -15,16 +43,16 @@
 
 The following is true about almost any company or team:
 
-- They accrue, build and work with knowledge in formats that should be optimized for editing and collaboration
-- They at some point want to produce artifacts based on the above such as presentations and documents to share with others
+* They accrue, build and work with knowledge in formats that should be optimized for editing and collaboration
+* They at some point want to produce artifacts based on the above such as presentations and documents to share with others
 
 Historically, tools like the Microsoft or Google suites somewhat solved these, but they muddled the above two; people end up collaborating in a PowerPoint deck, and knowledge work gets mixed with presentation work, often resulting in key knowledge being left in various presentations in various versions, rather than kept centrally and presented at-will.
 Additionally, these formats (pptx, docx etc.) aren't text-based, and are neither friendly to humans, git or LLMs.
 
 MarkdownOffice attempts to address these issues by separating the editing stage from the presentation stage:
 
-- The editing stage consists of collaborating on markdown files in whatever tools you like, making it git and LLM-friendly out of the box to build and edit knowledge.
-- The presentation stage is where MarkdownOffice comes in, taking a simple approach to generating customizable PDFs and presentations from your markdown sources.
+* The editing stage consists of collaborating on markdown files in whatever tools you like, making it git and LLM-friendly out of the box to build and edit knowledge.
+* The presentation stage is where MarkdownOffice comes in, taking a simple approach to generating customizable PDFs and presentations from your markdown sources.
 
 To do so, MarkdownOffice uses `pandoc` and `typst` for PDFs, and produces `Astro`-based sites with markdown content for presentations.
 These tools give us access to a number of more advanced features as well, such as the full power of HTML and CSS for visuals and animations.
@@ -55,9 +83,9 @@ mdo uninstall
 
 This lists what will be removed and asks for confirmation:
 
-- the `mdo` binary
-- the cache in `~/.cache/mdo/` (Astro runtime, generated slide decks, downloaded browser)
-- the global config in `~/.config/mdo/`, unless you pass `--keep-config`
+* the `mdo` binary
+* the cache in `~/.cache/mdo/` (Astro runtime, generated slide decks, downloaded browser)
+* the global config in `~/.config/mdo/`, unless you pass `--keep-config`
 
 Pass `--yes` to skip the prompt. Project-level `mdo-config.json` and logo files are left alone, and `pandoc` and `typst` are not removed.
 
@@ -143,25 +171,25 @@ The deck loads its fonts from Google Fonts, so print while online to get the rig
 
 Slides are split at these boundaries:
 
-- **`# Heading 1`** — starts a new section slide
-- **`## Heading 2`** — starts a sub-slide (the parent `#` heading is shown as the eyebrow above the title)
-- **`---`** (horizontal rule) — continuation slide within the current slide
+* **`# Heading 1`** — starts a new section slide
+* **`## Heading 2`** — starts a sub-slide (the parent `#` heading is shown as the eyebrow above the title)
+* **`---`** (horizontal rule) — continuation slide within the current slide
 
 If a document has no `#` headings (say, a README whose title is raw HTML), its highest heading level takes the place of `#`, and the next level down makes sub-slides.
 
 Within a slide:
 
-- A short paragraph (up to 140 characters) **directly after the heading** becomes the subtitle, followed by a divider rule and the rest of the content.
-- `*emphasis*` in a heading is rendered in the brand colour, e.g. `# Who *are we?*`.
-- A heading with nothing below it but a subtitle (e.g. `# Questions*?*`) is centred.
-- `. . .` on its own line is a pause: everything after it is revealed on the next step.
-- Lists inside `::: incremental` (or every list, with `incremental: true` in the front matter) reveal one item at a time. `::: nonincremental` opts back out.
-- `::: reveal` reveals each child block of the div in turn.
-- `:::: columns` with `::: column` children lays content out side by side, top-aligned (`:::: {.columns .center}` centres them vertically).
-- Fenced divs stack their children with the standard gap; add `{.stack-tight}` or `{.stack-loose}` for tighter or looser spacing.
-- `::: notes` holds speaker notes, which are never shown.
-- Raw HTML in a ```` ```{=html} ```` block is passed through untouched, for diagrams, SVGs or custom layouts. The Markdown content styles don't apply inside it, but the design's classes (`.reveal`, `.stack`, `.body`, `.eyebrow`, ...) and theme variables (`var(--brand)`, `var(--ink-2)`, ...) do. Local images in `<img src>` and SVG `<image href>` are embedded like Markdown images. Longer HTML can live in its own file: `!include diagram.html` inserts it as a raw HTML block.
-- `> blockquotes` render as call-outs; code blocks, tables and images are styled to match.
+* A short paragraph (up to 140 characters) **directly after the heading** becomes the subtitle, followed by a divider rule and the rest of the content.
+* `*emphasis*` in a heading is rendered in the brand colour, e.g. `# Who *are we?*`.
+* A heading with nothing below it but a subtitle (e.g. `# Questions*?*`) is centred.
+* `. . .` on its own line is a pause: everything after it is revealed on the next step.
+* Lists inside `::: incremental` (or every list, with `incremental: true` in the front matter) reveal one item at a time. `::: nonincremental` opts back out.
+* `::: reveal` reveals each child block of the div in turn.
+* `:::: columns` with `::: column` children lays content out side by side, top-aligned (`:::: {.columns .center}` centres them vertically).
+* Fenced divs stack their children with the standard gap; add `{.stack-tight}` or `{.stack-loose}` for tighter or looser spacing.
+* `::: notes` holds speaker notes, which are never shown.
+* Raw HTML in a ```` ```{=html} ```` block is passed through untouched, for diagrams, SVGs or custom layouts. The Markdown content styles don't apply inside it, but the design's classes (`.reveal`, `.stack`, `.body`, `.eyebrow`, ...) and theme variables (`var(--brand)`, `var(--ink-2)`, ...) do. Local images in `<img src>` and SVG `<image href>` are embedded like Markdown images. Longer HTML can live in its own file: `!include diagram.html` inserts it as a raw HTML block.
+* `> blockquotes` render as call-outs; code blocks, tables and images are styled to match.
 
 Content before the first `#` heading is ignored — the title slide is generated automatically from the front matter and branding config, and left out when the document has no `doc-title` or `doc-subtitle`.
 
