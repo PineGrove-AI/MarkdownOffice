@@ -54,14 +54,16 @@ MarkdownOffice attempts to address these issues by separating the editing stage 
 * The editing stage consists of collaborating on markdown files in whatever tools you like, making it git and LLM-friendly out of the box to build and edit knowledge.
 * The presentation stage is where MarkdownOffice comes in, taking a simple approach to generating customizable PDFs and presentations from your markdown sources.
 
-To do so, MarkdownOffice uses `pandoc` and `typst` for PDFs, and produces `Astro`-based sites with markdown content for presentations.
-These tools give us access to a number of more advanced features as well, such as the full power of HTML and CSS for visuals and animations.
+The result is that your team can collaborate in a shared markdown knowledge base, relying on git for versioning and diffs, whilst producing beautiful output documents and presentations when they're needed.
 
 ## What is MarkdownOffice (mdo)?
 
-MDO is a CLI tool that converts Markdown files into branded PDFs using `pandoc` and `typst`. Documents only need a YAML front matter block with a title and subtitle — branding, logo, and styling are applied automatically.
+MDO is a CLI tool that converts Markdown files into branded PDFs and presentations with customizable styling.
 
-Supports basic PDF generation as well as watch mode, letting you edit Markdown while seeing your changes live in PDF-form.
+To do so, MarkdownOffice uses `pandoc` and `typst` for PDFs, and produces `Astro`-based sites with markdown content for presentations.
+These tools give us access to a number of more advanced features as well, such as the full power of HTML and CSS for visuals and animations.
+
+MDO supports basic generation as well as a watch mode, letting you edit Markdown while seeing your changes live in PDF or presentation form (yes, you can produce both from the same source!).
 
 ## Installation
 
