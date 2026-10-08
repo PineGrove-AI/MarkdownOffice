@@ -3,20 +3,28 @@
 </p>
 
 <h1 align="center">mdo</h1>
-<p align="center"><strong>Markdown Document Office</strong> — turn Markdown into branded PDFs and Presentations from the terminal</p>
+<p align="center"><strong>Markdown Document Office</strong> - turn Markdown into branded PDFs and presentations from the terminal</p>
 
 ---
 
 <!-- mtoc-start -->
 
-* [The problem that MarkdownOffice was designed to solve](#the-problem-that-markdownoffice-was-designed-to-solve)
-* [What is MarkdownOffice (mdo)?](#what-is-markdownoffice-mdo)
+* [Why mdo?](#why-mdo)
+* [What is mdo?](#what-is-mdo)
 * [Installation](#installation)
   * [Uninstalling](#uninstalling)
   * [From source (for development)](#from-source-for-development)
 * [Usage](#usage)
+* [Configuration](#configuration)
+  * [mdo-config.json](#mdo-configjson)
+  * [Logo](#logo)
+  * [YAML front matter](#yaml-front-matter)
+  * [Multi-file documents](#multi-file-documents)
+* [PDF](#pdf)
   * [PDF options](#pdf-options)
-  * [Examples](#examples)
+  * [PDF examples](#pdf-examples)
+  * [Template resolution](#template-resolution)
+  * [Frontpage placeholders](#frontpage-placeholders)
 * [Slides](#slides)
   * [Slide options](#slide-options)
   * [Slides as PDF](#slides-as-pdf)
@@ -25,45 +33,29 @@
   * [Slide navigation](#slide-navigation)
   * [Slide examples](#slide-examples)
   * [Slide styling](#slide-styling)
-* [Configuration](#configuration)
-  * [mdo-config.json](#mdo-configjson)
-  * [Logo](#logo)
-  * [YAML front matter](#yaml-front-matter)
-  * [Multi-file documents](#multi-file-documents)
-* [Template resolution](#template-resolution)
-  * [Frontpage placeholders](#frontpage-placeholders)
 
 <!-- mtoc-end -->
 
-## The problem that MarkdownOffice was designed to solve
+## Why mdo?
 
 <p align="center">
   <img src="assets/illustration.svg?v=2" alt="The old way: knowledge scattered across presentation formats. The mdo way: markdown as single source of truth, generating PDFs and slides." width="720">
 </p>
 
-The following is true about almost any company or team:
+Teams build knowledge in formats optimized for editing and collaboration, then need to produce polished documents and presentations to share with others. Tools like the Microsoft or Google suites blur these two stages: people end up collaborating in a PowerPoint deck, and key knowledge gets left in various presentations in various versions rather than kept centrally.
 
-* They accrue, build and work with knowledge in formats that should be optimized for editing and collaboration
-* They at some point want to produce artifacts based on the above such as presentations and documents to share with others
+These formats (pptx, docx, etc.) also aren't text-based, making them unfriendly to git and LLMs.
 
-Historically, tools like the Microsoft or Google suites somewhat solved these, but they muddled the above two; people end up collaborating in a PowerPoint deck, and knowledge work gets mixed with presentation work, often resulting in key knowledge being left in various presentations in various versions, rather than kept centrally and presented at-will.
-Additionally, these formats (pptx, docx etc.) aren't text-based, and are neither friendly to humans, git or LLMs.
+mdo separates editing from presentation:
 
-MarkdownOffice attempts to address these issues by separating the editing stage from the presentation stage:
+* **Editing** - collaborate on Markdown files in whatever tools you like, with git for versioning and diffs.
+* **Presentation** - generate customizable PDFs and slide decks from those same Markdown sources.
 
-* The editing stage consists of collaborating on markdown files in whatever tools you like, making it git and LLM-friendly out of the box to build and edit knowledge.
-* The presentation stage is where MarkdownOffice comes in, taking a simple approach to generating customizable PDFs and presentations from your markdown sources.
+## What is mdo?
 
-The result is that your team can collaborate in a shared markdown knowledge base, relying on git for versioning and diffs, whilst producing beautiful output documents and presentations when they're needed.
+A CLI tool that converts Markdown into branded PDFs and presentations. It uses `pandoc` and `typst` for PDFs, and [Astro](https://astro.build) for slide decks, giving you access to the full power of HTML and CSS for visuals and animations.
 
-## What is MarkdownOffice (mdo)?
-
-MDO is a CLI tool that converts Markdown files into branded PDFs and presentations with customizable styling.
-
-To do so, MarkdownOffice uses `pandoc` and `typst` for PDFs, and produces `Astro`-based sites with markdown content for presentations.
-These tools give us access to a number of more advanced features as well, such as the full power of HTML and CSS for visuals and animations.
-
-MDO supports basic generation as well as a watch mode, letting you edit Markdown while seeing your changes live in PDF or presentation form (yes, you can produce both from the same source!).
+mdo supports one-shot generation and a watch mode that re-renders as you edit. Both outputs can be produced from the same source.
 
 ## Installation
 
@@ -109,12 +101,94 @@ deno task compile
 
 ```bash
 mdo pdf <file-or-dir> [options]       # convert markdown to PDF
-mdo slides <file-or-dir> [options]    # convert markdown to an HTML slide deck (Astro)
+mdo slides <file-or-dir> [options]    # convert markdown to an HTML slide deck
 mdo init [--global]                   # scaffold config and sample files
 mdo update                            # update to the latest version
 mdo uninstall [--yes] [--keep-config] # remove mdo, its cache and global config
 mdo --version                         # print version
 ```
+
+## Configuration
+
+`mdo` looks for `mdo-config.json` and a logo file in the following order:
+
+1. **Project root** - the directory you run `mdo` from (or specify with `--root`)
+2. **Global config** - `~/.config/mdo/` (or `$XDG_CONFIG_HOME/mdo/`)
+
+The first match wins. `mdo` prints which config file it's using on each run.
+
+If neither exists, the first run creates a **placeholder** global config and `logo.svg` in `~/.config/mdo/` so you get a working document right away. The placeholders are deliberately loud (magenta branding, a "YOUR LOGO" logo and a "Placeholder branding" label) so you know to replace them.
+
+You can also create them yourself:
+
+```bash
+mdo init --global   # ~/.config/mdo/mdo-config.json + logo.svg
+mdo init            # ./mdo-config.json + logo.svg + example.md
+```
+
+Then edit `mdo-config.json` and replace `logo.svg` with your own `logo.png` or `logo.svg`.
+
+### mdo-config.json
+
+```json
+{
+  "company_name_prefix": "Your",
+  "company_name_highlight": "Company",
+  "brand_color": "#2563EB"
+}
+```
+
+| Field | Required | Description |
+| --- | --- | --- |
+| `company_name_prefix` | Yes | First part of the company name |
+| `company_name_highlight` | Yes | Second part, rendered in `brand_color` |
+| `brand_color` | Yes | Hex colour for branding accents |
+
+The company name is rendered as `<prefix><highlight>` with the highlight portion colored using `brand_color`.
+
+### Logo
+
+Place a `logo.png` or `logo.svg` alongside your `mdo-config.json` (project root or global config dir). `logo.png` takes priority over `logo.svg`.
+
+### YAML front matter
+
+Each Markdown file can have a front matter block:
+
+```yaml
+---
+doc-title: "Your Document Title"
+doc-subtitle: "Optional subtitle"
+---
+```
+
+| Field | Required | Description |
+| --- | --- | --- |
+| `doc-title` | Yes | Document title shown on the PDF frontpage and slide title slide |
+| `doc-subtitle` | No | Subtitle below the title |
+
+### Multi-file documents
+
+Documents can pull in other files with `!include`:
+
+```markdown
+---
+doc-title: "My Report"
+doc-subtitle: "2026"
+---
+
+!include chapters/01-intro.md
+!include chapters/02-analysis.md
+```
+
+Paths are relative to the including file. Includes are expanded recursively (up to 16 levels deep) before pandoc processes anything, so cross-chapter links work as if everything were in a single file.
+
+`!include` lines inside fenced code blocks are left alone, so you can show them as examples. An included `.html` file is inserted as a raw HTML block, which is handy for keeping slide diagrams out of the Markdown (`!include diagrams/architecture.html`). Image paths inside included files resolve relative to the main document.
+
+## PDF
+
+`mdo pdf` converts Markdown to PDF using `pandoc` and `typst`.
+
+When given a directory, `mdo pdf` merges all `.md` files in that directory (sorted alphabetically) into a single PDF.
 
 ### PDF options
 
@@ -125,21 +199,54 @@ mdo --version                         # print version
 | `--output`, `-o` | Output PDF path (default: `<input>.pdf`) |
 | `--root` | Document root for mdo-config.json and logo (default: cwd) |
 
-When given a directory, `mdo pdf` merges all `.md` files in that directory (sorted alphabetically) into a single PDF.
+PDF-specific front matter fields:
 
-### Examples
+| Field | Required | Description |
+| --- | --- | --- |
+| `toc` | No | Set to `true` to include a table of contents |
+
+PDF-specific config in `mdo-config.json`:
+
+| Field | Required | Description |
+| --- | --- | --- |
+| `confidentiality_label` | No | Label shown on the PDF frontpage |
+| `toc_depth` | No | Max heading depth for the table of contents (1-6, default `3`) |
+
+### PDF examples
 
 ```bash
-mdo init                              # create mdo-config.json in current dir
-mdo init --global                     # create global config in ~/.config/mdo/
 mdo pdf report.md                     # render a single file
 mdo pdf report.md --open              # render and open the PDF
 mdo pdf report.md --watch             # render, open, and re-render on changes
 mdo pdf report.md --output build/out.pdf
 mdo pdf reports/                      # merge all .md files in dir into one PDF
 mdo pdf report.md --root /path/to/repo
-mdo update                            # update to the latest release
 ```
+
+### Template resolution
+
+`mdo` ships with default templates for the frontpage layout and typst styling. These can be overridden per-project by placing files with the same name in the document root:
+
+| Template | Purpose |
+| --- | --- |
+| `frontpage.typ` | Frontpage layout with placeholder tokens |
+| `typst-header.typ` | Typst `#show` and `#set` rules for headings, lists, tables |
+
+**Resolution order:** document root first, then the bundled defaults compiled into the binary. If a file exists in the document root, it takes priority.
+
+### Frontpage placeholders
+
+Custom `frontpage.typ` templates can use these tokens, which are substituted at build time:
+
+| Placeholder | Source |
+| --- | --- |
+| `%%COMPANY_PREFIX%%` | `mdo-config.json` |
+| `%%COMPANY_HIGHLIGHT%%` | `mdo-config.json` |
+| `%%BRAND_COLOR%%` | `mdo-config.json` |
+| `%%CONFIDENTIALITY%%` | `mdo-config.json` |
+| `%%LOGO_PATH%%` | Resolved absolute path to logo file |
+| `%%TITLE%%` | Document front matter |
+| `%%SUBTITLE%%` | Document front matter |
 
 ## Slides
 
@@ -173,9 +280,9 @@ The deck loads its fonts from Google Fonts, so print while online to get the rig
 
 Slides are split at these boundaries:
 
-* **`# Heading 1`** — starts a new section slide
-* **`## Heading 2`** — starts a sub-slide (the parent `#` heading is shown as the eyebrow above the title)
-* **`---`** (horizontal rule) — continuation slide within the current slide
+* **`# Heading 1`** - starts a new section slide
+* **`## Heading 2`** - starts a sub-slide (the parent `#` heading is shown as the eyebrow above the title)
+* **`---`** (horizontal rule) - continuation slide within the current slide
 
 If a document has no `#` headings (say, a README whose title is raw HTML), its highest heading level takes the place of `#`, and the next level down makes sub-slides.
 
@@ -193,7 +300,7 @@ Within a slide:
 * Raw HTML in a ```` ```{=html} ```` block is passed through untouched, for diagrams, SVGs or custom layouts. The Markdown content styles don't apply inside it, but the design's classes (`.reveal`, `.stack`, `.body`, `.eyebrow`, ...) and theme variables (`var(--brand)`, `var(--ink-2)`, ...) do. Local images in `<img src>` and SVG `<image href>` are embedded like Markdown images. Longer HTML can live in its own file: `!include diagram.html` inserts it as a raw HTML block.
 * `> blockquotes` render as call-outs; code blocks, tables and images are styled to match.
 
-Content before the first `#` heading is ignored — the title slide is generated automatically from the front matter and branding config, and left out when the document has no `doc-title` or `doc-subtitle`.
+Content before the first `#` heading is ignored - the title slide is generated automatically from the front matter and branding config, and left out when the document has no `doc-title` or `doc-subtitle`.
 
 ### Slide attributes
 
@@ -203,7 +310,7 @@ Pandoc attributes on a `#`/`##` heading control that slide. `##` sub-slides and 
 | --- | --- |
 | `{.dark}` | Dark background |
 | `{.cream}` | Cream background (default is off-white paper) |
-| `{.cover}` | Title-slide layout — useful for a closing slide |
+| `{.cover}` | Title-slide layout - useful for a closing slide |
 | `{.center}` | Centre the title and content |
 | `{.no-rule}` | No divider between the title and the content |
 | `{.no-subtitle}` | Keep the first paragraph as regular content |
@@ -250,7 +357,7 @@ About anything we covered today.
 # Thanks for joining. {.cover label="Closing" left="contact@example.com"}
 ```
 
-The title slide takes these front matter fields in addition to `doc-title` and `doc-subtitle`:
+Slide-specific front matter fields (in addition to `doc-title` and `doc-subtitle`):
 
 | Field | Description |
 | --- | --- |
@@ -280,7 +387,7 @@ mdo slides deck.md --output build/slides.html
 
 ### Slide styling
 
-By default slides use the brand colour from `mdo-config.json` for accents, together with the company name and logo, on a neutral green-tinted palette. Every other colour, and the fonts, can be set with an optional `slides_theme` object:
+By default slides use the brand colour from `mdo-config.json` for accents, together with the company name and logo, on a neutral green-tinted palette. Every other colour, and the fonts, can be set with an optional `slides_theme` object in `mdo-config.json`:
 
 ```json
 {
@@ -320,111 +427,3 @@ Backgrounds accept any CSS background value, so gradients work too.
 `font` and `mono_font` take a [Google Fonts](https://fonts.google.com) family name (`"Lora"`), which is loaded automatically when the deck is opened, or a full CSS font stack (`"Lora, Georgia, serif"`), whose first font is loaded from Google Fonts. A font that isn't on Google Fonts gets a warning at build time and only shows on machines where it's installed. Like the defaults, fonts are loaded online and aren't embedded in the HTML. Unknown keys are rejected with a list of valid ones. Keys starting with `--` set a raw CSS custom property, which is handy together with `slides.css`.
 
 For anything beyond that, place a `slides.css` in the document root. It is loaded after the built-in styles.
-
-## Configuration
-
-`mdo` looks for `mdo-config.json` and a logo file in the following order:
-
-1. **Project root** — the directory you run `mdo` from (or specify with `--root`)
-2. **Global config** — `~/.config/mdo/` (or `$XDG_CONFIG_HOME/mdo/`)
-
-The first match wins. `mdo` prints which config file it's using on each run.
-
-If neither exists, the first `mdo pdf` or `mdo slides` run creates a **placeholder** global config and `logo.svg` in `~/.config/mdo/` so you get a working document right away. The placeholders are deliberately loud (magenta branding, a "YOUR LOGO" logo and a "Placeholder branding" label) so you know to replace them.
-
-You can also create the same placeholders yourself:
-
-```bash
-mdo init --global   # ~/.config/mdo/mdo-config.json + logo.svg
-mdo init            # ./mdo-config.json + logo.svg + example.md
-```
-
-Then edit `mdo-config.json` and replace `logo.svg` with your own `logo.png` or `logo.svg`.
-
-### mdo-config.json
-
-```json
-{
-  "company_name_prefix": "Your",
-  "company_name_highlight": "Company",
-  "brand_color": "#2563EB",
-  "confidentiality_label": "Confidential",
-  "toc_depth": 2
-}
-```
-
-| Field | Required | Description |
-| --- | --- | --- |
-| `company_name_prefix` | Yes | First part of the company name |
-| `company_name_highlight` | Yes | Second part, rendered in `brand_color` |
-| `brand_color` | Yes | Hex colour for branding accents |
-| `confidentiality_label` | Yes | Label shown on the frontpage |
-| `toc_depth` | No | Max heading depth for the PDF table of contents (1–6, default `3`) |
-
-The company name is rendered as `<prefix><highlight>` with the highlight portion colored using `brand_color`.
-
-### Logo
-
-Place a `logo.png` or `logo.svg` alongside your `mdo-config.json` (project root or global config dir). `logo.png` takes priority over `logo.svg`. A `logo.png` is used even when the placeholder `logo.svg` is still there.
-
-### YAML front matter
-
-Each markdown file needs a front matter block:
-
-```yaml
----
-doc-title: "Your Document Title"
-doc-subtitle: "Optional subtitle"
-toc: true
----
-```
-
-| Field | Required | Description |
-| --- | --- | --- |
-| `doc-title` | Yes | Document title on the frontpage |
-| `doc-subtitle` | No | Subtitle below the title |
-| `toc` | No | Set to `true` to include a table of contents |
-
-### Multi-file documents
-
-Documents can pull in other files with `!include`:
-
-```markdown
----
-doc-title: "My Report"
-doc-subtitle: "2026"
-toc: true
----
-
-!include chapters/01-intro.md
-!include chapters/02-analysis.md
-```
-
-Paths are relative to the including file. Includes are expanded recursively (up to 16 levels deep) before pandoc processes anything, so cross-chapter links work as if everything were in a single file.
-
-`!include` lines inside fenced code blocks are left alone, so you can show them as examples. An included `.html` file is inserted as a raw HTML block, which is handy for keeping slide diagrams out of the Markdown (`!include diagrams/architecture.html`). Image paths inside included files resolve relative to the main document.
-
-## Template resolution
-
-`mdo` ships with default templates for the frontpage layout and typst styling. These can be overridden per-project by placing files with the same name in the document root:
-
-| Template | Purpose |
-| --- | --- |
-| `frontpage.typ` | Frontpage layout with placeholder tokens |
-| `typst-header.typ` | Typst `#show` and `#set` rules for headings, lists, tables |
-
-**Resolution order:** document root first, then the bundled defaults compiled into the binary. If a file exists in the document root, it takes priority.
-
-### Frontpage placeholders
-
-Custom `frontpage.typ` templates can use these tokens, which are substituted at build time:
-
-| Placeholder | Source |
-| --- | --- |
-| `%%COMPANY_PREFIX%%` | `mdo-config.json` |
-| `%%COMPANY_HIGHLIGHT%%` | `mdo-config.json` |
-| `%%BRAND_COLOR%%` | `mdo-config.json` |
-| `%%CONFIDENTIALITY%%` | `mdo-config.json` |
-| `%%LOGO_PATH%%` | Resolved absolute path to logo file |
-| `%%TITLE%%` | Document front matter |
-| `%%SUBTITLE%%` | Document front matter |
